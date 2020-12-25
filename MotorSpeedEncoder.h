@@ -16,7 +16,8 @@ public:
 
     const float ENCODER_PPR = 341.2f;
 
-    MotorSpeedEncoder(int sensor_pin, int timeout_ms, float filter_beta);
+    //MotorSpeedEncoder(int sensor_pin, int timeout_ms, float filter_beta);
+    MotorSpeedEncoder(int sensor_pin_c1, int sensor_pin_c2, int timeout_ms, float filter_beta);
 
     //void init();
     void spin_once();
@@ -38,7 +39,8 @@ private:
     bool is_motor_running_;
     bool is_measurement_valid_;
     short state_prev_;
-    int sensor_pin_;
+    int sensor_pin_c1_;
+    int sensor_pin_c2_;
     int timeout_ms_;
 
     int encoder_count_;

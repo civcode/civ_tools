@@ -11,9 +11,10 @@ void interruptHandlerImplExt() {
 }
 */
 
-MotorSpeedEncoder::MotorSpeedEncoder(int sensor_pin, int timeout_ms, float filter_beta) {
-    sensor_pin_ = sensor_pin;
-    timeout_ms_ = timeout_ms;
+MotorSpeedEncoder::MotorSpeedEncoder(int sensor_pin_c1, int sensor_pin_c2, int timeout_ms, float filter_beta) :
+    sensor_pin_c1_(sensor_pin_c1), sensor_pin_c2_(sensor_pin_c2), timeout_ms_(timeout_ms) {
+    //sensor_pin_c1_ = sensor_pin_c1;
+    //timeout_ms_ = timeout_ms;
 
     is_motor_running_ = false;
     is_measurement_valid_ = false;
@@ -30,8 +31,9 @@ MotorSpeedEncoder::MotorSpeedEncoder(int sensor_pin, int timeout_ms, float filte
 
     lpf = new LowPassFilter(filter_beta);
 
-    pinMode(sensor_pin_, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(sensor_pin_), interruptHandlerStatic, CHANGE);
+    pinMode(sensor_pin_c1_, INPUT_PULLUP);
+    pinMode(sensor_pin_c2_, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(sensor_pin_c1_), interruptHandlerStatic, CHANGE);
 }
 
 
@@ -52,7 +54,7 @@ void MotorSpeedEncoder::interruptHandler() {
     //Serial.println("interrupt");
     timeout_target_ms_ = millis() + timeout_ms_;
 
-    if (digitalRead(sensor_pin_) == HIGH) {
+    if (digitalRead(sensor_pin_c1_) == HIGH) {
         //Serial.println("interrupt");
         if (state_prev_ == LOW) {
             if (is_measurement_valid_) {
@@ -74,7 +76,12 @@ void MotorSpeedEncoder::interruptHandler() {
                     period_us_ = 0;
                     lpf->filter(0.0f);
                 }
-                encoder_count_++;
+                
+                
+                if (digitalRead(sensor_pin_c2_) == LOW)
+                    encoder_count_++;
+                else 
+                    encoder_count_--;
 
             }
             pulse_start_us_ = micros();
