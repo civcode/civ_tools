@@ -3,7 +3,13 @@
 
 #include <cmath>
 
-SlewRate::SlewRate(float slew_rate, float v_min, float v_max) : slew_rate_(slew_rate), v_min_(v_min), v_max_(v_max) {};
+SlewRate::SlewRate(float slew_rate, float v_min, float v_max) : 
+    slew_rate_(slew_rate), 
+    v_min_(v_min), 
+    v_max_(v_max) 
+{
+        reset();
+};
 
 float SlewRate::filter(float u) {
     float du = u - u_prev_;
@@ -11,9 +17,8 @@ float SlewRate::filter(float u) {
     if (fabs(du) > slew_rate_) {
         if (du > 0) {
             u_out = u_prev_ + slew_rate_;
-        } else
-        {
-            u_out = u_prev_ = slew_rate_;
+        } else {
+            u_out = u_prev_ - slew_rate_;
         }
     } else {
         u_out = u;   

@@ -12,16 +12,20 @@ void interruptHandlerImplExt() {
 */
 
 MotorSpeedEncoder::MotorSpeedEncoder(int sensor_pin_c1, int sensor_pin_c2, int timeout_ms, float filter_beta) :
-    sensor_pin_c1_(sensor_pin_c1), sensor_pin_c2_(sensor_pin_c2), timeout_ms_(timeout_ms) {
+    sensor_pin_c1_(sensor_pin_c1), 
+    sensor_pin_c2_(sensor_pin_c2), 
+    timeout_ms_(timeout_ms) 
+{
     //sensor_pin_c1_ = sensor_pin_c1;
     //timeout_ms_ = timeout_ms;
 
     is_motor_running_ = false;
+    is_direction_reversed_ = false;
     is_measurement_valid_ = false;
     state_prev_ = 0;
     pulse_start_us_ = 0;
     period_us_ = 0;
-    period_delta_us_ = 0;
+    //period_delta_us_ = 0;
     time_ms_ = 0;
     timeout_target_ms_ = 0;
 
@@ -57,10 +61,13 @@ void MotorSpeedEncoder::interruptHandler() {
     if (digitalRead(sensor_pin_c1_) == HIGH) {
         //Serial.println("interrupt");
         if (state_prev_ == LOW) {
+            unsigned long time_now_us = micros();
+            int sensor_pin_c2_state = digitalRead(sensor_pin_c2_);
             if (is_measurement_valid_) {
-                unsigned long cycle_us = micros() - pulse_start_us_;
+                //unsigned long cycle_us = micros() - pulse_start_us_;
+                unsigned long cycle_us = time_now_us - pulse_start_us_;
                 //delta_us_ = abs(static_cast<long>(period_us_) - (micros() - pulse_start_us_));
-                period_delta_us_ = abs(static_cast<long>(period_us_) - cycle_us);
+                //period_delta_us_ = abs(static_cast<long>(period_us_) - cycle_us);
                 //period_us_ = micros() - pulse_start_us_;
                 
                 //if ((is_motor_running_ && period_delta_us_ < DELTA_MICROS_MAX) || cycle_us > INIT_PERIOD_MICROS_MIN) {
@@ -77,14 +84,23 @@ void MotorSpeedEncoder::interruptHandler() {
                     lpf->filter(0.0f);
                 }
                 
-                
-                if (digitalRead(sensor_pin_c2_) == LOW)
+                if (sensor_pin_c2_state == LOW) {
+                    is_direction_reversed_ = false;
                     encoder_count_++;
-                else 
+                } else {
+                    is_direction_reversed_ = true;
                     encoder_count_--;
+                }
+                
+                
+                //if (digitalRead(sensor_pin_c2_) == LOW)
+                //    encoder_count_++;
+                //else 
+                //    encoder_count_--;
 
             }
-            pulse_start_us_ = micros();
+            //pulse_start_us_ = micros();
+            pulse_start_us_ = time_now_us;
             state_prev_ = HIGH;
         }
     } else {
@@ -100,7 +116,8 @@ float MotorSpeedEncoder::getSpeedRaw() {
     if (period_us_ == 0) {
         return 0.0f;
     } else {
-        return (1E6f / (ENCODER_PPR * period_us_));
+        float sign = (is_direction_reversed_) ? (-1.0f) : (1.0f);
+        return (1E6f / (ENCODER_PPR * period_us_) * sign);
     } 
 }
 
@@ -112,7 +129,8 @@ float MotorSpeedEncoder::getSpeed() {
     if (lpf->get_val() == 0) {
         return 0.0f;
     } else {
-        return (1E6f / (ENCODER_PPR * lpf->get_val()));
+        float sign = (is_direction_reversed_) ? (-1.0f) : (1.0f);
+        return (1E6f / (ENCODER_PPR * lpf->get_val()) * sign);
     }
 
 }

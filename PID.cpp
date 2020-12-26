@@ -28,7 +28,8 @@ float PID::calculate(float setpoint, float process_value, unsigned long time_us)
 
     if (is_first_iteration_) {
         //Serial.println("first iteration");
-        time_us_prev_ = time_us_prev_;
+        //time_us_prev_ = time_us_prev_;
+        time_us_prev_ = time_us;
         is_first_iteration_ = false;
         return 0.0f;
     }

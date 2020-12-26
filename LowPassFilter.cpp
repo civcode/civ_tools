@@ -1,6 +1,8 @@
 #include "LowPassFilter.h"
 
-LowPassFilter::LowPassFilter(float beta) : beta_(beta) {};
+LowPassFilter::LowPassFilter(float beta) : beta_(beta) {
+    reset();
+};
 
 float LowPassFilter::filter(float raw) {
     if (val_ == 0.0f) {

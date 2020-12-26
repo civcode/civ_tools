@@ -37,6 +37,7 @@ private:
     LowPassFilter *lpf;
 
     bool is_motor_running_;
+    bool is_direction_reversed_;
     bool is_measurement_valid_;
     short state_prev_;
     int sensor_pin_c1_;
@@ -47,7 +48,7 @@ private:
 
     unsigned long pulse_start_us_;
     unsigned long period_us_;
-    long period_delta_us_;
+    //long period_delta_us_;
 
     unsigned long time_ms_;
     unsigned long timeout_target_ms_;
