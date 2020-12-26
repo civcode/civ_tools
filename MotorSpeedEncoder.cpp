@@ -148,6 +148,10 @@ bool MotorSpeedEncoder::isMotorRunning() {
     return is_motor_running_;
 }
 
+bool MotorSpeedEncoder::isDirectionReversed() {
+    return is_direction_reversed_;
+}
+
 void MotorSpeedEncoder::spin_once() {
     time_ms_ = millis();
     if (TIME_OVER(timeout_target_ms_, time_ms_)) {

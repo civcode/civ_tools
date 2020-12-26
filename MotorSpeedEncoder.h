@@ -22,6 +22,7 @@ public:
     //void init();
     void spin_once();
     bool isMotorRunning();
+    bool isDirectionReversed();
 
     float getSpeedRaw();
     float getSpeed();
